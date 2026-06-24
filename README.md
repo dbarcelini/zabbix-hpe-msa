@@ -2,7 +2,7 @@
 Template e script para monitoramento avançado de storages HP P2000 G3 e HPE MSA via API
 
 ===============================================================================
-GUIA DE IMPLEMENTAÇÃO E MONOGRAFIA DE CONFIGURAÇÃO: MONITORAMENTO HPE MSA VIA API
+GUIA DE IMPLEMENTAÇÃO E DE CONFIGURAÇÃO: MONITORAMENTO HPE MSA VIA API
 ===============================================================================
 Monitoramento HPE MSA via API.
 Versão do Template: 1.0.1 (2026-06-24)
