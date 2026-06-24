@@ -1,0 +1,996 @@
+zabbix_export:
+  version: '7.4'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226333
+      name: 'Templates/HPE Storage'
+  templates:
+    - uuid: 5c9e42fdc54746f0bf7123bfde4fa51c
+      template: 'Template HPE MSA - API Pure JSON'
+      name: 'Template HPE MSA - API Pure JSON'
+      description: |
+        Monitoramento Completo, Unificado e Altamente Otimizado de Storages HPE MSA via XML API.
+        Monitora Controladoras (Saúde e CPU %), Portas, Ventoinhas, Fontes, Discos, Volumes, VDisks, Enclosures e Estatísticas Avançadas de Performance.
+        
+        Métricas de Estatísticas configuradas para Tempo Real / Consumo Instantâneo (Mudar por Segundo / bps / iops).
+        Inclui Alerta Automático para Saturação de Portas Físicas Gigabit (1 Gbps) e Gráficos Automáticos (LLD) de Performance de Ponta a Ponta.
+        
+        Monitoramento HPE MSA via API.
+        Base de Desenvolvimento: Template HPE MSA for Zabbix 4.4 with SSL
+        Versão: 1.0.0 (2026-06-24)
+        Desenvolvido por: Daniel Barcelini (Apoio: Gemini)
+      groups:
+        - name: 'Templates/HPE Storage'
+      
+      macros:
+        - macro: '{$API.VER}'
+          value: '2'
+        - macro: '{$MSA.USERNAME}'
+          value: 'monitor'
+        - macro: '{$MSA.PASSWORD}'
+          value: 'password'
+          type: SECRET_TEXT
+        - macro: '{$HISTORY}'
+          value: '7d'
+        - macro: '{$TRENDS}'
+          value: '365d'
+        - macro: '{$LLD_INTERVAL}'
+          value: '1h'
+        - macro: '{$NODATA_RANGE}'
+          value: '5m'
+
+      items:
+        # =====================================================================
+        # === MASTERS COLETORES ESTRUTURAIS                                 ===
+        # =====================================================================
+        - uuid: f1245a90d3424cb0bc8351cfde19ea45
+          name: 'HPE MSA: Master Coletor das Controladoras'
+          type: EXTERNAL
+          key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","controllers"]'
+          delay: '1m'
+          history: 1d
+          value_type: TEXT
+          tags:
+            - tag: Componente
+              value: HPE MSA API Pure
+          triggers:
+            - uuid: a82cdd138fae4b95be24810cf0c451da
+              expression: 'nodata(/Template HPE MSA - API Pure JSON/zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","controllers"],5m)=1'
+              name: 'HPE MSA: Falha critica na comunicacao com a API'
+              priority: HIGH
+
+        - uuid: e2145a90d3424cb0bc8351cfde19ea46
+          name: 'HPE MSA: Master Coletor das Portas'
+          type: EXTERNAL
+          key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","ports"]'
+          delay: '1m'
+          history: 1d
+          value_type: TEXT
+          tags:
+            - tag: Componente
+              value: HPE MSA API Pure
+
+        - uuid: d2145a90d3424cb0bc8351cfde19ea47
+          name: 'HPE MSA: Master Coletor dos Discos'
+          type: EXTERNAL
+          key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","disks"]'
+          delay: '1m'
+          history: 1d
+          value_type: TEXT
+          tags:
+            - tag: Componente
+              value: HPE MSA API Pure
+
+        # =====================================================================
+        # === MASTERS COLETORES DE PERFORMANCE                              ===
+        # =====================================================================
+        - uuid: 11145a90d3424cb0bc8351cfde19ea01
+          name: 'HPE MSA: Master Coletor - Estatisticas das Controladoras'
+          type: EXTERNAL
+          key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","controller-statistics"]'
+          delay: '1m'
+          history: 1d
+          value_type: TEXT
+          tags:
+            - tag: Componente
+              value: HPE MSA Performance
+
+        - uuid: 22145a90d3424cb0bc8351cfde19ea02
+          name: 'HPE MSA: Master Coletor - Estatisticas de Portas'
+          type: EXTERNAL
+          key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","host-port-statistics"]'
+          delay: '1m'
+          history: 1d
+          value_type: TEXT
+          tags:
+            - tag: Componente
+              value: HPE MSA Performance
+
+        - uuid: 33145a90d3424cb0bc8351cfde19ea03
+          name: 'HPE MSA: Master Coletor - Estatisticas de Volumes'
+          type: EXTERNAL
+          key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","volume-statistics"]'
+          delay: '1m'
+          history: 1d
+          value_type: TEXT
+          tags:
+            - tag: Componente
+              value: HPE MSA Performance
+
+        - uuid: 44145a90d3424cb0bc8351cfde19ea04
+          name: 'HPE MSA: Master Coletor - Estatisticas de VDisks'
+          type: EXTERNAL
+          key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","vdisk-statistics"]'
+          delay: '1m'
+          history: 1d
+          value_type: TEXT
+          tags:
+            - tag: Componente
+              value: HPE MSA Performance
+
+        - uuid: c2145a90d3424cb0bc8351cfde19ea48
+          name: 'HPE MSA: Master Coletor de Volumes'
+          type: EXTERNAL
+          key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","volumes"]'
+          delay: '1m'
+          history: 1d
+          value_type: TEXT
+          tags:
+            - tag: Componente
+              value: HPE MSA API Pure
+
+        - uuid: a2145a90d3424cb0bc8351cfde19ea49
+          name: 'HPE MSA: Master Coletor de Enclosures'
+          type: EXTERNAL
+          key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","enclosures"]'
+          delay: '1m'
+          history: 1d
+          value_type: TEXT
+          tags:
+            - tag: Componente
+              value: HPE MSA API Pure
+
+        - uuid: a2145a90d3424cb0bc8351cfde19ea50
+          name: 'HPE MSA: Master Coletor de Fans / Ventoinhas'
+          type: EXTERNAL
+          key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","fans"]'
+          delay: '1m'
+          history: 1d
+          value_type: TEXT
+          tags:
+            - tag: Componente
+              value: HPE MSA Pure
+
+        - uuid: a2145a90d3424cb0bc8351cfde19ea51
+          name: 'HPE MSA: Master Coletor de Fontes / Power Supplies'
+          type: EXTERNAL
+          key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","power-supplies"]'
+          delay: '1m'
+          history: 1d
+          value_type: TEXT
+          tags:
+            - tag: Componente
+              value: HPE MSA Hardware
+
+      discovery_rules:
+        # =====================================================================
+        # 1. DESCOBERTA ESTRUTURAL DE CONTROLADORAS (MÉTRICAS + GRÁFICO DE CPU)
+        # =====================================================================
+        - uuid: b374cfa7e2654b9cb7dd6b26cf9dc0ee
+          name: 'HPE MSA - Descoberta de Controladoras'
+          type: DEPENDENT
+          key: msa.api.ctrl.discovery
+          delay: '0'
+          master_item:
+            key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","controllers"]'
+          lifetime: 1d
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  var lld = [];
+                  for (var key in data) {
+                      lld.push({ "{#CONTROLLER.ID}": key });
+                  }
+                  return JSON.stringify(lld);
+          item_prototypes:
+            - uuid: 2bd493f1cae047f08d4b2938cf1e5b24
+              name: 'Controladora {#CONTROLLER.ID}: Carga de CPU'
+              type: DEPENDENT
+              key: 'msa.api.ctrl["{#CONTROLLER.ID}","cpu"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              units: '%'
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#CONTROLLER.ID}"]["cpu"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","controller-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA API Pure
+              trigger_prototypes:
+                - uuid: d9243ab0f18c47a98ce142bfdf1e5924
+                  expression: 'avg(/Template HPE MSA - API Pure JSON/msa.api.ctrl["{#CONTROLLER.ID}","cpu"],15m)>85'
+                  name: 'HPE MSA: Uso excessivo de CPU detectado na Controladora {#CONTROLLER.ID}'
+                  priority: AVERAGE
+
+            - uuid: 6bf23da049fb4ca8be128479cfde4a51
+              name: 'Controladora {#CONTROLLER.ID}: Taxa de IOPS'
+              type: DEPENDENT
+              key: 'msa.api.ctrl["{#CONTROLLER.ID}","io"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#CONTROLLER.ID}"]["io"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","controllers"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA API Pure
+
+            - uuid: 8fbc4123ae494df9bdc02348fcde34a8
+              name: 'Controladora {#CONTROLLER.ID}: Status de Saude'
+              type: DEPENDENT
+              key: 'msa.api.ctrl["{#CONTROLLER.ID}","h"]'
+              history: '{$HISTORY}'
+              trends: '0'
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#CONTROLLER.ID}"]["h"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","controllers"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA API Pure
+              trigger_prototypes:
+                - uuid: 7cb43de89fa14e7a8dc2310ffca4e591
+                  expression: 'last(/Template HPE MSA - API Pure JSON/msa.api.ctrl["{#CONTROLLER.ID}","h"])<>0'
+                  name: 'HPE MSA: Alerta de Saude na Controladora {#CONTROLLER.ID}'
+                  priority: HIGH
+          graph_prototypes:
+            - uuid: a1a43bfae82943bbbc2818de7d341201
+              name: 'Controladora {#CONTROLLER.ID}: Uso de CPU'
+              type: NORMAL
+              height: '200'
+              ymin_type_1: FIXED
+              ymax_type_1: FIXED
+              yaxismin: '0'
+              yaxismax: '100'
+              graph_items:
+                - color: '1A73E8'
+                  item:
+                    host: 'Template HPE MSA - API Pure JSON'
+                    key: 'msa.api.ctrl["{#CONTROLLER.ID}","cpu"]'
+
+        # =====================================================================
+        # 2. DESCOBERTA DE ESTATÍSTICAS DAS CONTROLADORAS (MACRO PERFORMANCE)
+        # =====================================================================
+        - uuid: 12af53e6b81c409ba55d648eaec82201
+          name: 'HPE MSA - Descoberta de Performance: Controladoras'
+          type: DEPENDENT
+          key: msa.perf.ctrl.discovery
+          delay: '0'
+          master_item:
+            key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","controller-statistics"]'
+          lifetime: 1d
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  var lld = [];
+                  for (var key in data) {
+                      lld.push({ "{#CTRL.ID}": key });
+                  }
+                  return JSON.stringify(lld);
+          item_prototypes:
+            - uuid: 12af53e6b81c409ba55d648eaec8221a
+              name: 'Controladora {#CTRL.ID}: IOPS Atual (Momento)'
+              type: DEPENDENT
+              key: 'msa.perf.ctrl["{#CTRL.ID}","iops"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#CTRL.ID}"]["iops"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","controller-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Performance
+
+            - uuid: 12af53e6b81c409ba55d648eaec8221e
+              name: 'Controladora {#CTRL.ID}: Soma total da banda utilizada (Momento)'
+              type: DEPENDENT
+              key: 'msa.perf.ctrl["{#CTRL.ID}","bps"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              units: Bps
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#CTRL.ID}"]["bps"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","controller-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Performance
+
+            - uuid: 12af53e6b81c409ba55d648eaec8221b
+              name: 'Controladora {#CTRL.ID}: Taxa de Dados Lidos por Segundo'
+              type: DEPENDENT
+              key: 'msa.perf.ctrl["{#CTRL.ID}","data_read_rate"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              units: Bps
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#CTRL.ID}"]["data_read"]'
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","controller-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Performance
+
+            - uuid: 12af53e6b81c409ba55d648eaec8221c
+              name: 'Controladora {#CTRL.ID}: Taxa de Dados Gravados por Segundo'
+              type: DEPENDENT
+              key: 'msa.perf.ctrl["{#CTRL.ID}","data_write_rate"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              units: Bps
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#CTRL.ID}"]["data_write"]'
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","controller-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Performance
+          graph_prototypes:
+            - uuid: b2b43bfae82943bbbc2818de7d341202
+              name: 'Controladora {#CTRL.ID}: Visao Macro de Performance'
+              type: NORMAL
+              height: '200'
+              graph_items:
+                - color: 'FF5722'
+                  item:
+                    host: 'Template HPE MSA - API Pure JSON'
+                    key: 'msa.perf.ctrl["{#CTRL.ID}","iops"]'
+                - color: '4CAF50'
+                  yaxisside: RIGHT
+                  item:
+                    host: 'Template HPE MSA - API Pure JSON'
+                    key: 'msa.perf.ctrl["{#CTRL.ID}","bps"]'
+                - color: '2196F3'
+                  yaxisside: RIGHT
+                  item:
+                    host: 'Template HPE MSA - API Pure JSON'
+                    key: 'msa.perf.ctrl["{#CTRL.ID}","data_read_rate"]'
+                - color: 'E91E63'
+                  yaxisside: RIGHT
+                  item:
+                    host: 'Template HPE MSA - API Pure JSON'
+                    key: 'msa.perf.ctrl["{#CTRL.ID}","data_write_rate"]'
+
+        # =====================================================================
+        # 3. DESCOBERTA DE ESTATÍSTICAS DE PORTAS (ESCOAMENTO DA INFRA)
+        # =====================================================================
+        - uuid: 22af53e6b81c409ba55d648eaec82202
+          name: 'HPE MSA - Descoberta de Performance: Portas iSCSI Ativas'
+          type: DEPENDENT
+          key: msa.perf.port.discovery
+          delay: '0'
+          master_item:
+            key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","host-port-statistics"]'
+          lifetime: 1d
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  var lld = [];
+                  for (var key in data) {
+                      var port = data[key];
+                      if (parseInt(port["reads"]) > 0 || parseInt(port["writes"]) > 0) {
+                          lld.push({ "{#PORT.ID}": key });
+                      }
+                  }
+                  return JSON.stringify(lld);
+          item_prototypes:
+            - uuid: 22af53e6b81c409ba55d648eaec8222a
+              name: 'Porta {#PORT.ID}: IOPS Atual (Momento)'
+              type: DEPENDENT
+              key: 'msa.perf.port["{#PORT.ID}","iops"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#PORT.ID}"]["iops"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","host-port-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Performance
+
+            - uuid: 22af53e6b81c409ba55d648eaec8222e
+              name: 'Porta {#PORT.ID}: Soma total da banda utilizada (Momento)'
+              type: DEPENDENT
+              key: 'msa.perf.port["{#PORT.ID}","bps"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              units: Bps
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#PORT.ID}"]["bps"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","host-port-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Performance
+              trigger_prototypes:
+                - uuid: d5532ab0f18c47a98ce142bfdf1e596c
+                  expression: 'last(/Template HPE MSA - API Pure JSON/msa.perf.port["{#PORT.ID}","bps"])>106250000'
+                  name: 'HPE MSA: Porta fisica {#PORT.ID} operando proximo ao limite maximo Gigabit (>85% de 1 Gbps)'
+                  priority: WARNING
+
+            - uuid: 22af53e6b81c409ba55d648eaec8222b
+              name: 'Porta {#PORT.ID}: Taxa de Leitura por Segundo'
+              type: DEPENDENT
+              key: 'msa.perf.port["{#PORT.ID}","data_read_rate"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              units: Bps
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#PORT.ID}"]["data_read"]'
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","host-port-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Performance
+
+            - uuid: 22af53e6b81c409ba55d648eaec8222c
+              name: 'Porta {#PORT.ID}: Taxa de Escrita por Segundo'
+              type: DEPENDENT
+              key: 'msa.perf.port["{#PORT.ID}","data_write_rate"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              units: Bps
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#PORT.ID}"]["data_write"]'
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","host-port-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Performance
+          graph_prototypes:
+            - uuid: c3c43bfae82943bbbc2818de7d341203
+              name: 'Porta {#PORT.ID}: Estatistica de Uso e Escoamento'
+              type: NORMAL
+              height: '200'
+              graph_items:
+                - color: 'FF9800'
+                  item:
+                    host: 'Template HPE MSA - API Pure JSON'
+                    key: 'msa.perf.port["{#PORT.ID}","iops"]'
+                - color: '009688'
+                  yaxisside: RIGHT
+                  item:
+                    host: 'Template HPE MSA - API Pure JSON'
+                    key: 'msa.perf.port["{#PORT.ID}","bps"]'
+                - color: '03A9F4'
+                  yaxisside: RIGHT
+                  item:
+                    host: 'Template HPE MSA - API Pure JSON'
+                    key: 'msa.perf.port["{#PORT.ID}","data_read_rate"]'
+                - color: 'E91E63'
+                  yaxisside: RIGHT
+                  item:
+                    host: 'Template HPE MSA - API Pure JSON'
+                    key: 'msa.perf.port["{#PORT.ID}","data_write_rate"]'
+
+        # =====================================================================
+        # 4. DESCOBERTA DE ESTATÍSTICAS DE VOLUMES (ÚLTIMA MILHA LÓGICA)
+        # =====================================================================
+        - uuid: 33af53e6b81c409ba55d648eaec82203
+          name: 'HPE MSA - Descoberta de Performance: Volumes Reais'
+          type: DEPENDENT
+          key: msa.perf.vol.discovery
+          delay: '0'
+          master_item:
+            key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","volume-statistics"]'
+          lifetime: 1d
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  var lld = [];
+                  for (var key in data) {
+                      if (key.indexOf("spvd") !== 0) {
+                          lld.push({ "{#VOL.NAME}": key });
+                      }
+                  }
+                  return JSON.stringify(lld);
+          item_prototypes:
+            - uuid: 33af53e6b81c409ba55d648eaec8223a
+              name: 'Volume {#VOL.NAME}: IOPS Atual (Momento)'
+              type: DEPENDENT
+              key: 'msa.perf.vol["{#VOL.NAME}","iops"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#VOL.NAME}"]["iops"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","volume-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Performance
+
+            - uuid: 33af53e6b81c409ba55d648eaec8223e
+              name: 'Volume {#VOL.NAME}: Soma total da banda utilizada (Momento)'
+              type: DEPENDENT
+              key: 'msa.perf.vol["{#VOL.NAME}","bps"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              units: Bps
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#VOL.NAME}"]["bps"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","volume-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Performance
+
+            - uuid: 33af53e6b81c409ba55d648eaec8223b
+              name: 'Volume {#VOL.NAME}: Taxa de Leitura por Segundo'
+              type: DEPENDENT
+              key: 'msa.perf.vol["{#VOL.NAME}","data_read_rate"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              units: Bps
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#VOL.NAME}"]["data_read"]'
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","volume-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Performance
+
+            - uuid: 33af53e6b81c409ba55d648eaec8223c
+              name: 'Volume {#VOL.NAME}: Taxa de Escrita por Segundo'
+              type: DEPENDENT
+              key: 'msa.perf.vol["{#VOL.NAME}","data_write_rate"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              units: Bps
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#VOL.NAME}"]["data_write"]'
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","volume-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Performance
+          graph_prototypes:
+            - uuid: d4d43bfae82943bbbc2818de7d341204
+              name: 'Volume {#VOL.NAME}: IOPS e Vazao de Dados'
+              type: NORMAL
+              height: '200'
+              graph_items:
+                - color: '9C27B0'
+                  item:
+                    host: 'Template HPE MSA - API Pure JSON'
+                    key: 'msa.perf.vol["{#VOL.NAME}","iops"]'
+                - color: '3F51B5'
+                  yaxisside: RIGHT
+                  item:
+                    host: 'Template HPE MSA - API Pure JSON'
+                    key: 'msa.perf.vol["{#VOL.NAME}","bps"]'
+                - color: '00BCD4'
+                  yaxisside: RIGHT
+                  item:
+                    host: 'Template HPE MSA - API Pure JSON'
+                    key: 'msa.perf.vol["{#VOL.NAME}","data_read_rate"]'
+                - color: 'E91E63'
+                  yaxisside: RIGHT
+                  item:
+                    host: 'Template HPE MSA - API Pure JSON'
+                    key: 'msa.perf.vol["{#VOL.NAME}","data_write_rate"]'
+
+        # =====================================================================
+        # 5. DESCOBERTA DE ESTATÍSTICAS DE VDISKS (MÉTRICA DE DISCOS MECÂNICOS)
+        # =====================================================================
+        - uuid: 44af53e6b81c409ba55d648eaec82204
+          name: 'HPE MSA - Descoberta de Performance: VDisks'
+          type: DEPENDENT
+          key: msa.perf.vdisk.discovery
+          delay: '0'
+          master_item:
+            key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","vdisk-statistics"]'
+          lifetime: 1d
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  var lld = [];
+                  for (var key in data) {
+                      lld.push({ "{#VDISK.NAME}": key });
+                  }
+                  return JSON.stringify(lld);
+          item_prototypes:
+            - uuid: 44af53e6b81c409ba55d648eaec8224a
+              name: 'VDisk {#VDISK.NAME}: IOPS Atual (Momento)'
+              type: DEPENDENT
+              key: 'msa.perf.vdisk["{#VDISK.NAME}","iops"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#VDISK.NAME}"]["iops"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","vdisk-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Performance
+
+            - uuid: 44af53e6b81c409ba55d648eaec8224e
+              name: 'VDisk {#VDISK.NAME}: Soma total da banda utilizada (Momento)'
+              type: DEPENDENT
+              key: 'msa.perf.vdisk["{#VDISK.NAME}","bps"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              units: Bps
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#VDISK.NAME}"]["bps"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","vdisk-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Performance
+
+            - uuid: 44af53e6b81c409ba55d648eaec8224b
+              name: 'VDisk {#VDISK.NAME}: Latencia Total Instantanea'
+              type: DEPENDENT
+              key: 'msa.perf.vdisk["{#VDISK.NAME}","resp_time"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              units: ms
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#VDISK.NAME}"]["resp_time"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","vdisk-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Performance
+
+            - uuid: 44af53e6b81c409ba55d648eaec8224c
+              name: 'VDisk {#VDISK.NAME}: Latencia de Leitura Instantanea'
+              type: DEPENDENT
+              key: 'msa.perf.vdisk["{#VDISK.NAME}","read_resp_time"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              units: ms
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#VDISK.NAME}"]["read_resp_time"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","vdisk-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Performance
+
+            - uuid: 44af53e6b81c409ba55d648eaec8224d
+              name: 'VDisk {#VDISK.NAME}: Latencia de Escrita Instantanea'
+              type: DEPENDENT
+              key: 'msa.perf.vdisk["{#VDISK.NAME}","write_resp_time"]'
+              history: '{$HISTORY}'
+              trends: '{$TRENDS}'
+              units: ms
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#VDISK.NAME}"]["write_resp_time"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","vdisk-statistics"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Performance
+          graph_prototypes:
+            - uuid: e5e43bfae82943bbbc2818de7d341205
+              name: 'VDisk {#VDISK.NAME}: Performance Geral do Array'
+              type: NORMAL
+              height: '200'
+              graph_items:
+                - color: '607D8B'
+                  item:
+                    host: 'Template HPE MSA - API Pure JSON'
+                    key: 'msa.perf.vdisk["{#VDISK.NAME}","iops"]'
+                - color: 'FFEB3B'
+                  yaxisside: RIGHT
+                  item:
+                    host: 'Template HPE MSA - API Pure JSON'
+                    key: 'msa.perf.vdisk["{#VDISK.NAME}","bps"]'
+
+        # =====================================================================
+        # 6. DESCOBERTA DE PORTAS ESTRUTURAIS
+        # =====================================================================
+        - uuid: 8d2c4620f4b341909a35e76a6cfbe422
+          name: 'HPE MSA - Descoberta de Portas FC / iSCSI'
+          type: DEPENDENT
+          key: msa.api.ports.discovery
+          delay: '0'
+          master_item:
+            key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","ports"]'
+          lifetime: 1d
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  var lld = [];
+                  for (var key in data) {
+                      var port = data[key];
+                      if (port && (port["h"] === 0 || port["h"] === "0" || port["status"] === "Up" || port["status"] === 0)) {
+                          lld.push({ "{#PORT.ID}": key });
+                      }
+                  }
+                  return JSON.stringify(lld);
+          item_prototypes:
+            - uuid: 3bd493f1cae047f08d4b2938cf1e5b25
+              name: 'Porta {#PORT.ID}: Status do Link'
+              type: DEPENDENT
+              key: 'msa.api.port["{#PORT.ID}","status"]'
+              history: '{$HISTORY}'
+              trends: '0'
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#PORT.ID}"]["h"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","ports"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA API Pure
+
+        # =====================================================================
+        # 7. DESCOBERTA DE DISCOS FISICOS
+        # =====================================================================
+        - uuid: b79f32388653457b98c918349257bbdf
+          name: 'HPE MSA - Descoberta de Discos Fisicos'
+          type: DEPENDENT
+          key: msa.api.disks.discovery
+          delay: '0'
+          master_item:
+            key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","disks"]'
+          lifetime: 1d
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  var lld = [];
+                  for (var key in data) {
+                      lld.push({ "{#DISK.ID}": key });
+                  }
+                  return JSON.stringify(lld);
+          item_prototypes:
+            - uuid: 4bd493f1cae047f08d4b2938cf1e5b26
+              name: 'Disco Fisico {#DISK.ID}: Status de Saude'
+              type: DEPENDENT
+              key: 'msa.api.disk["{#DISK.ID}","h"]'
+              history: '{$HISTORY}'
+              trends: '0'
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#DISK.ID}"]["h"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","disks"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA API Pure
+              trigger_prototypes:
+                - uuid: 52028fa6b21c435bb156637df8c8a16f
+                  expression: 'last(/Template HPE MSA - API Pure JSON/msa.api.disk["{#DISK.ID}","h"])<>0'
+                  name: 'HPE MSA: Falha ou Alerta de integridade no Disco Fisico {#DISK.ID}'
+                  priority: HIGH
+
+        # =====================================================================
+        # 8. DESCOBERTA DE GAVETAS / ENCLOSURES
+        # =====================================================================
+        - uuid: f12bc4e7d98442da9f13e72ba1dc903e
+          name: 'HPE MSA - Descoberta de Gavetas (Enclosures)'
+          type: DEPENDENT
+          key: msa.api.encl.discovery
+          delay: '0'
+          master_item:
+            key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","enclosures"]'
+          lifetime: 1d
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  var lld = [];
+                  for (var key in data) {
+                      lld.push({ "{#ENCLOSURE.ID}": key });
+                  }
+                  return JSON.stringify(lld);
+          item_prototypes:
+            - uuid: 9fd493f1cae047f08d4b2938cf1e5b22
+              name: 'Chassi / Enclosure {#ENCLOSURE.ID}: Status de Saude'
+              type: DEPENDENT
+              key: 'msa.api.encl["{#ENCLOSURE.ID}","health"]'
+              history: '{$HISTORY}'
+              trends: '0'
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#ENCLOSURE.ID}"]["h"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","enclosures"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA API Pure
+
+        # =====================================================================
+        # 9. DESCOBERTA DE VENTOUINHAS / FANS
+        # =====================================================================
+        - uuid: e52bc4e7d98442da9f13e72ba1dc904a
+          name: 'HPE MSA - Descoberta de Ventoinhas (Fans)'
+          type: DEPENDENT
+          key: msa.api.fans.discovery
+          delay: '0'
+          master_item:
+            key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","fans"]'
+          lifetime: 1d
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  var lld = [];
+                  for (var key in data) {
+                      lld.push({ "{#FAN.ID}": key });
+                  }
+                  return JSON.stringify(lld);
+          item_prototypes:
+            - uuid: 8fd493f1cae047f08d4b2938cf1e5b3a
+              name: 'Ventoinha {#FAN.ID}: Status de Saude'
+              type: DEPENDENT
+              key: 'msa.api.fan["{#FAN.ID}","status"]'
+              history: '{$HISTORY}'
+              trends: '0'
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#FAN.ID}"]["status"]'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","fans"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Hardware
+              trigger_prototypes:
+                - uuid: d3354cb0f18c47a98ce142bfdf1e594a
+                  expression: 'last(/Template HPE MSA - API Pure JSON/msa.api.fan["{#FAN.ID}","status"])<>0'
+                  name: 'HPE MSA: Alerta de Falha na Ventoinha/Fan {#FAN.ID}'
+                  priority: HIGH
+
+        # =====================================================================
+        # 10. DESCOBERTA DE FONTES / POWER SUPPLIES
+        # =====================================================================
+        - uuid: d52bc4e7d98442da9f13e72ba1dc905b
+          name: 'HPE MSA - Descoberta de Fontes de Alimentacao'
+          type: DEPENDENT
+          key: msa.api.psu.discovery
+          delay: '0'
+          master_item:
+            key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","power-supplies"]'
+          lifetime: 1d
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  var lld = [];
+                  for (var key in data) {
+                      if (key.indexOf("PSU") === 0) {
+                          lld.push({ "{#PSU.ID}": key });
+                      }
+                  }
+                  return JSON.stringify(lld);
+          item_prototypes:
+            - uuid: 7fd493f1cae047f08d4b2938cf1e5b4b
+              name: 'Fonte {#PSU.ID}: Status de Saude'
+              type: DEPENDENT
+              key: 'msa.api.psu["{#PSU.ID}","status"]'
+              history: '{$HISTORY}'
+              trends: '0'
+              value_type: FLOAT
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$["{#PSU.ID}"]["status"]'
+              master_item:
+                key: 'zbx-hpmsa.py["--ssl","direct","-a","{$API.VER}","-u","{$MSA.USERNAME}","-p","{$MSA.PASSWORD}","full","{HOST.CONN}","power-supplies"]'
+              tags:
+                - tag: Componente
+                  value: HPE MSA Hardware
+              trigger_prototypes:
+                - uuid: a9243ab0f18c47a98ce142bfdf1e595b
+                  expression: 'last(/Template HPE MSA - API Pure JSON/msa.api.psu["{#PSU.ID}","status"])<>0'
+                  name: 'HPE MSA: Falha detectada na Fonte de Alimentacao {#PSU.ID}'
+                  priority: HIGH
