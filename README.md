@@ -39,14 +39,16 @@ chmod 755 zbx-hpmsa.py
 ```
 ### 2.3 Inicializando o diretório de cache
 O script possui um comando interno de instalação para estruturar o banco de dados SQLite de cache local (geralmente em /tmp). Execute:
+```bash
 sudo -u zabbix ./zbx-hpmsa.py install
-
+```
 ### 2.4 Dependências do Python
 Certifique-se de que o Python 3 e as bibliotecas requests e urllib3 estejam presentes:
+```bash
 pip3 install requests urllib3
-
+```
 ### 3. Comandos Suportados e Teste Manual (Cenário Real HP P2000 G3)
-Oscript zbx-hpmsa.py trabalha com subcomandos para segmentar a coleta de dados através do argumento part.
+Oscript `zbx-hpmsa.py` trabalha com subcomandos para segmentar a coleta de dados através do argumento part.
 
 ### 3.1 Partições (part) válidas:
 ° Estruturais/Inventário: controllers, ports, disks, volumes, enclosures, fans, power-supplies
