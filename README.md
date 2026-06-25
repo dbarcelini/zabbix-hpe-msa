@@ -36,7 +36,7 @@ Execute os seguintes comandos como **root** no terminal do Linux:
 cd /usr/lib/zabbix/externalscripts/
 chown zabbix:zabbix zbx-hpmsa.py
 chmod 755 zbx-hpmsa.py
-
+```
 ### 2.3 Inicializando o diretório de cache
 O script possui um comando interno de instalação para estruturar o banco de dados SQLite de cache local (geralmente em /tmp). Execute:
 sudo -u zabbix ./zbx-hpmsa.py install
