@@ -32,7 +32,7 @@ Mova o arquivo `zbx-hpmsa.py` para o diretório padrão de scripts externos do s
 O script precisa de permissões de execução e deve pertencer ao usuário do Zabbix para que o processo de polling funcione corretamente, além de necessitar de um diretório de cache para gerenciar as sessões da API (SKEY).
 
 Execute os seguintes comandos como **root** no terminal do Linux:
-
+```bash
 cd /usr/lib/zabbix/externalscripts/
 chown zabbix:zabbix zbx-hpmsa.py
 chmod 755 zbx-hpmsa.py
