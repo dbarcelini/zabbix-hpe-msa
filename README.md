@@ -68,6 +68,7 @@ Ambiente de Teste Validado:
 * Usuário da API: monitor
 * Senha da API: S3nh4St0r4g3!
 * Coleta: Estatísticas de Performance das Controladoras
+
 ```bash
 sudo -u zabbix /usr/lib/zabbix/externalscripts/zbx-hpmsa.py --ssl direct -a 2 -u monitor -p "S3nh4St0r4g3!" full 192.168.100.50 controller-statistics
 ```
