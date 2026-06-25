@@ -6,7 +6,7 @@ Versão Integrada com Correção para Enclosures, Fans e Power Supplies.
 
 Monitoramento HPE MSA via API.
 Base de Desenvolvimento: Template HPE MSA for Zabbix 4.4 with SSL
-Versão: 1.0.0 (2026-06-24)
+Versão: 1.0.1 (2026-06-24)
 Desenvolvido por: Daniel Barcelini (Apoio: Gemini)
 
 """
