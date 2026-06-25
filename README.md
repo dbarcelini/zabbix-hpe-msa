@@ -51,8 +51,8 @@ pip3 install requests urllib3
 O script `zbx-hpmsa.py` trabalha com subcomandos para segmentar a coleta de dados através do argumento part.
 
 ### 3.1 Partições (part) válidas:
-° **Estruturais/Inventário:** controllers, ports, disks, volumes, enclosures, fans, power-supplies
-° **Telemetria/Performance:** controller-statistics, host-port-statistics, volume-statistics, vdisk-statistics
+* **Estruturais/Inventário:** controllers, ports, disks, volumes, enclosures, fans, power-supplies
+* **Telemetria/Performance:** controller-statistics, host-port-statistics, volume-statistics, vdisk-statistics
 
 ### 3.2 Sintaxe Base do Script:
 ```bash
