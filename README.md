@@ -48,14 +48,16 @@ Certifique-se de que o Python 3 e as bibliotecas requests e urllib3 estejam pres
 pip3 install requests urllib3
 ```
 ### 3. Comandos Suportados e Teste Manual (Cenário Real HP P2000 G3)
-Oscript `zbx-hpmsa.py` trabalha com subcomandos para segmentar a coleta de dados através do argumento part.
+O script `zbx-hpmsa.py` trabalha com subcomandos para segmentar a coleta de dados através do argumento part.
 
 ### 3.1 Partições (part) válidas:
-° Estruturais/Inventário: controllers, ports, disks, volumes, enclosures, fans, power-supplies
-° Telemetria/Performance: controller-statistics, host-port-statistics, volume-statistics, vdisk-statistics
+° **Estruturais/Inventário:** controllers, ports, disks, volumes, enclosures, fans, power-supplies
+° **Telemetria/Performance:** controller-statistics, host-port-statistics, volume-statistics, vdisk-statistics
 
 ### 3.2 Sintaxe Base do Script:
+```bash
 zbx-hpmsa.py [--ssl direct|verify] -a [VERSAO_API] -u [USUARIO] -p [SENHA] full [IP_DO_STORAGE] [PARTICAO]
+```
 
 ### 3.3 Exemplo Técnico Real de Execução para Testes:
 Para validar se o script e o Zabbix conseguirão se comunicar perfeitamente com o equipamento homologado, rode o comando abaixo simulando o usuário zabbix.
