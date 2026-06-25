@@ -62,69 +62,69 @@ zbx-hpmsa.py [--ssl direct|verify] -a [VERSAO_API] -u [USUARIO] -p [SENHA] full 
 ### 3.3 Exemplo Técnico Real de Execução para Testes:
 Para validar se o script e o Zabbix conseguirão se comunicar perfeitamente com o equipamento homologado, rode o comando abaixo simulando o usuário zabbix.
 Ambiente de Teste Validado:
-° Hardware: HP P2000 G3
-° Firmware: Bundle Version: TS252R007 (Build Date: Fri May  8 15:40:57 MDT 2015)
-° IP do Storage: 192.168.100.50
-° Usuário da API: monitor
-° Senha da API: S3nh4St0r4g3!
-° Coleta: Estatísticas de Performance das Controladoras
-
+* Hardware: HP P2000 G3
+* Firmware: Bundle Version: TS252R007 (Build Date: Fri May  8 15:40:57 MDT 2015)
+* IP do Storage: 192.168.100.50
+* Usuário da API: monitor
+* Senha da API: S3nh4St0r4g3!
+* Coleta: Estatísticas de Performance das Controladoras
+```bash
 sudo -u zabbix /usr/lib/zabbix/externalscripts/zbx-hpmsa.py --ssl direct -a 2 -u monitor -p "S3nh4St0r4g3!" full 192.168.100.50 controller-statistics
+```
+**Retorno Esperado:** Um bloco estruturado de texto em formato JSON puro contendo as métricas em tempo real de IOPS, Bytes por segundo e dados globais de leitura/escrita processados pelas controladoras A e B do HP P2000 G3.
 
-Retorno Esperado: Um bloco estruturado de texto em formato JSON puro contendo as métricas em tempo real de IOPS, Bytes por segundo e dados globais de leitura/escrita processados pelas controladoras A e B do HP P2000 G3.
-
-### 4. Detalhamento do Template (Métricas, Descobertas e Regras)
+## 4. Detalhamento do Template (Métricas, Descobertas e Regras)
 ### 4.1 Itens Mestre (Master Items)
 O template implementa a técnica de "Itens Mestre" para mitigar gargalos e evitar múltiplas conexões concorrentes no Storage. O Zabbix faz uma única chamada na API por minuto para cada categoria de dados, traz o JSON completo, e os demais itens (Dependentes) filtram as informações localmente via JSONPATH.
 
 Os Itens Mestre coletados ativamente são:
-° HPE MSA: Master Coletor das Controladoras (Traz saúde e IOPS estrutural)
-° HPE MSA: Master Coletor das Portas (Traz status de link físico)
-° HPE MSA: Master Coletor dos Discos (Traz integridade física dos HDs/SSDs)
-° HPE MSA: Master Coletor de Volumes (Traz mapeamento de volumes)
-° HPE MSA: Master Coletor de Enclosures (Traz saúde das gavetas)
-° HPE MSA: Master Coletor de Fans / Ventoinhas (Traz saúde das ventoinhas)
-° HPE MSA: Master Coletor de Fontes / Power Supplies (Traz saúde da energia)
-° HPE MSA: Master Coletor - Estatisticas das Controladoras (Performance)
-° HPE MSA: Master Coletor - Estatisticas de Portas (Performance de tráfego)
-° HPE MSA: Master Coletor - Estatisticas de Volumes (Performance granular)
-° HPE MSA: Master Coletor - Estatisticas de VDisks (Performance de arrays de discos)
+* HPE MSA: Master Coletor das Controladoras (Traz saúde e IOPS estrutural)
+* HPE MSA: Master Coletor das Portas (Traz status de link físico)
+* HPE MSA: Master Coletor dos Discos (Traz integridade física dos HDs/SSDs)
+* HPE MSA: Master Coletor de Volumes (Traz mapeamento de volumes)
+* HPE MSA: Master Coletor de Enclosures (Traz saúde das gavetas)
+* HPE MSA: Master Coletor de Fans / Ventoinhas (Traz saúde das ventoinhas)
+* HPE MSA: Master Coletor de Fontes / Power Supplies (Traz saúde da energia)
+* HPE MSA: Master Coletor - Estatisticas das Controladoras (Performance)
+* HPE MSA: Master Coletor - Estatisticas de Portas (Performance de tráfego)
+* HPE MSA: Master Coletor - Estatisticas de Volumes (Performance granular)
+* HPE MSA: Master Coletor - Estatisticas de VDisks (Performance de arrays de discos)
 
-4.2 Itens Criados por Descoberta Automática (LLD)
+### 4.2 Itens Criados por Descoberta Automática (LLD)
 O template detecta dinamicamente os componentes físicos e lógicos existentes no P2000 G3.
-° Descoberta de Controladoras:
-  ° Controladora {#CONTROLLER.ID}: Carga de CPU (%)
-  ° Controladora {#CONTROLLER.ID}: Taxa de IOPS
-  ° Controladora {#CONTROLLER.ID}: Status de Saude (Código numérico)
-° Descoberta de Performance - Controladoras:
-  ° Controladora {#CTRL.ID}: IOPS Atual (Momento)
-  ° Controladora {#CTRL.ID}: Soma total da banda utilizada (Momento em Bps)
-  ° Controladora {#CTRL.ID}: Taxa de Dados Lidos/Gravados por Segundo
-° Descoberta de Performance - Portas iSCSI/FC Ativas:
-  ° Porta {#PORT.ID}: IOPS Atual (Momento)
-  ° Porta {#PORT.ID}: Soma total da banda utilizada (Bps)
-  ° Porta {#PORT.ID}: Taxa de Leitura/Escrita por Segundo
-° Descoberta de Performance - Volumes Reais:
-  ° Volume {#VOL.NAME}: IOPS, Banda Utilizada, Taxas de Leitura e Escrita
-° Descoberta de Performance - VDisks:
-  ° VDisk {#VDISK.NAME}: IOPS, Banda Utilizada e Latências de Leitura/Escrita (ms)
-°Descoberta de Portas, Discos, Gavetas, Ventoinhas e Fontes:
-  ° Itens individuais que monitoram a Saúde/Status de link de cada componente achado.
+* **Descoberta de Controladoras:**
+  * Controladora {#CONTROLLER.ID}: Carga de CPU (%)
+  * Controladora {#CONTROLLER.ID}: Taxa de IOPS
+  * Controladora {#CONTROLLER.ID}: Status de Saude (Código numérico)
+* **Descoberta de Performance - Controladoras:**
+  * Controladora {#CTRL.ID}: IOPS Atual (Momento)
+  * Controladora {#CTRL.ID}: Soma total da banda utilizada (Momento em Bps)
+  * Controladora {#CTRL.ID}: Taxa de Dados Lidos/Gravados por Segundo
+* **Descoberta de Performance - Portas iSCSI/FC Ativas:**
+  * Porta {#PORT.ID}: IOPS Atual (Momento)
+  * Porta {#PORT.ID}: Soma total da banda utilizada (Bps)
+  * Porta {#PORT.ID}: Taxa de Leitura/Escrita por Segundo
+* **Descoberta de Performance - Volumes Reais:**
+  * Volume {#VOL.NAME}: IOPS, Banda Utilizada, Taxas de Leitura e Escrita
+* **Descoberta de Performance - VDisks:**
+  * VDisk {#VDISK.NAME}: IOPS, Banda Utilizada e Latências de Leitura/Escrita (ms)
+* **Descoberta de Portas, Discos, Gavetas, Ventoinhas e Fontes:**
+  * Itens individuais que monitoram a Saúde/Status de link de cada componente achado.
   
   ### 4.3 Triggers (Gatilhos de Alertas)
-  ° Falha Crítica na Comunicação com a API: Disparada se o script não coletar dados por 5 minutos.
-  ° Uso Excessivo de CPU na Controladora: Disparada se a média de CPU passar de 85% por 15 minutos.
-  ° Alerta de Saúde na Controladora / Discos / Fontes / Ventoinhas: Disparada imediatamente se o status divergir do esperado.
-  ° Saturação de Porta Física Gigabit: Disparada em nível de AVISO se o tráfego de uma porta monitorada ultrapassar ~85% da capacidade real de 1 Gbps (ou seja, > 106.250.000 Bps).
+  * Falha Crítica na Comunicação com a API: Disparada se o script não coletar dados por 5 minutos.
+  * Uso Excessivo de CPU na Controladora: Disparada se a média de CPU passar de 85% por 15 minutos.
+  * Alerta de Saúde na Controladora / Discos / Fontes / Ventoinhas: Disparada imediatamente se o status divergir do esperado.
+  * Saturação de Porta Física Gigabit: Disparada em nível de AVISO se o tráfego de uma porta monitorada ultrapassar ~85% da capacidade real de 1 Gbps (ou seja, > 106.250.000 Bps).
   
   ### 4.4 Gráficos Customizados Gerados Automaticamente
-  ° Gráfico de Uso de CPU por Controladora (Eixo fixado em 0-100%).
-  ° Visão Macro de Performance da Controladora (Cruza IOPS com vazão de dados em Bytes).
-  ° Estatística de Uso e Escoamento de Portas (Essencial para achar gargalos na rede SAN).
-  ° Volume IOPS e Vazão de Dados (Mapeia qual servidor/volume está gerando estresse).
-  ° VDisk Performance Geral do Array (Entrega a visão combinada do conjunto de discos).
+  * Gráfico de Uso de CPU por Controladora (Eixo fixado em 0-100%).
+  * Visão Macro de Performance da Controladora (Cruza IOPS com vazão de dados em Bytes).
+  * Estatística de Uso e Escoamento de Portas (Essencial para achar gargalos na rede SAN).
+  * Volume IOPS e Vazão de Dados (Mapeia qual servidor/volume está gerando estresse).
+  * VDisk Performance Geral do Array (Entrega a visão combinada do conjunto de discos).
   
-  ### 5. Configuração de Macros no Zabbix
+  ## 5. Configuração de Macros no Zabbix
   Ao associar o template ao Host do Storage no Zabbix, as seguintes Macros devem ser revisadas e preenchidas na aba "Macros -> Macros Herdados e do Template":
 
     | Macro              | Valor Padrão | Descrição / Opções de Preenchimento |
@@ -137,15 +137,15 @@ O template detecta dinamicamente os componentes físicos e lógicos existentes n
     | `{$LLD_INTERVAL}`  |    `1h`      | Frequência com que o Zabbix buscará por novos discos/componentes. |
     | `{$NODATA_RANGE}`  |    `5m`      | Tempo limite sem dados para disparar alerta de indisponibilidade. |
   
- ### 6. Manual de Operação: Interpretação dos Dados e Cultura do "Zero"
+ ## 6. Manual de Operação: Interpretação dos Dados e Cultura do "Zero"
  ### 6.1 Compreendendo o Valor "0" (Zero) como Sinal de Saúde Perfeita
  Para simplificar gatilhos e visões de relatórios, a arquitetura do Storage mapeia valores textuais de status para números inteiros no Zabbix através do script.
  Desta forma, na documentação do monitoramento fica estabelecido que:
- ° STATUS OK / HEALTHY / UP / OPERACIONAL = 0 (Zero)
+ * **STATUS OK / HEALTHY / UP / OPERACIONAL = 0 (Zero)**
  Se você consultar itens como "Status de Saúde da Controladora", "Saúde do Disco Físico", "Status da Fonte" ou "Status da Ventoinha" e o gráfico reportar 0, o hardware está em perfeito estado de funcionamento. Valores maiores que 0 significam degradação (Ex: 1 para Degradado, 2 para Falha Crítica).
  
  ### 6.2 Como Analisar os Limites e o Consumo do Hardware (Capacidade)
  A análise proativa deve ser baseada no cruzamento de três pilares:
-  A) Vazão de Banda (Bps) vs Limites de Infraestrutura: Se o gráfico de uma "Porta" apontar picos constantes de 100 MB/s a 115 MB/s em interfaces iSCSI de 1 Gbps, a porta está operando no limite físico máximo do cabo. A trigger de saturação alertará isso. A solução será balancear o multipath ou migrar para conexões de 10 Gbps ou Fibre Channel.
-  B) IOPS vs Latência (VDisk Response Time): Discos rígidos mecânicos possuem limites severos de IOPS. Ao analisar os gráficos, se o gráfico de IOPS de um Volume/VDisk estiver muito alto e, simultaneamente, o item "Latência Total Instantânea (resp_time)" do VDisk subir para valores acima de 20ms ou 30ms, os discos físicos entraram em gargalo de escrita/leitura (Fila de E/S). Isso impacta diretamente a performance dos sistemas ou VMs hospedadas.
-  C) Carga de CPU das Controladoras: A CPU do Storage gerencia o cache, desduplicação, rotas e processamento de IO. Se a CPU de uma das controladoras apresentar picos repetidos acima de 85%, significa que o hardware está operando próximo ao limite de processamento de instruções, o que pode indicar a necessidade de redistribuir os volumes preferenciais entre as controladoras A e B para equilibrar a carga de trabalho de forma homogênea.
+*  **A) Vazão de Banda (Bps) vs Limites de Infraestrutura:** Se o gráfico de uma "Porta" apontar picos constantes de 100 MB/s a 115 MB/s em interfaces iSCSI de 1 Gbps, a porta está operando no limite físico máximo do cabo. A trigger de saturação alertará isso. A solução será balancear o multipath ou migrar para conexões de 10 Gbps ou Fibre Channel.
+*  **B) IOPS vs Latência (VDisk Response Time):** Discos rígidos mecânicos possuem limites severos de IOPS. Ao analisar os gráficos, se o gráfico de IOPS de um Volume/VDisk estiver muito alto e, simultaneamente, o item "Latência Total Instantânea (resp_time)" do VDisk subir para valores acima de 20ms ou 30ms, os discos físicos entraram em gargalo de escrita/leitura (Fila de E/S). Isso impacta diretamente a performance dos sistemas ou VMs hospedadas.
+*  **C) Carga de CPU das Controladoras:** A CPU do Storage gerencia o cache, desduplicação, rotas e processamento de IO. Se a CPU de uma das controladoras apresentar picos repetidos acima de 85%, significa que o hardware está operando próximo ao limite de processamento de instruções, o que pode indicar a necessidade de redistribuir os volumes preferenciais entre as controladoras A e B para equilibrar a carga de trabalho de forma homogênea.
